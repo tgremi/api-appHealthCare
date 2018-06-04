@@ -1,12 +1,12 @@
 let app = require("./config/server.js");
 
 //Set the available port or 3000
-let server_port = process.env.YOUR_PORT || process.env.PORT || 3000;
+let server_port = process.env.YOUR_PORT || process.env.PORT || 4000;
 //Set the available host
 let server_host = process.env.YOUR_HOST || '0.0.0.0';
 
 try {
-    app.listen(server_port, server_host, () => {
+    app.listen(server_port, '192.168.0.15', () => {
     }).on("error", (error) => {
         console.log("api-pivii server error =", error);
     }).on("listening", () => {

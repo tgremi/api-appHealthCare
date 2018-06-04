@@ -1,4 +1,5 @@
 let bcrypt = require('bcrypt');
+let uniqueIdGenerator = require('../utils/helpers').uniqueIdGenerator
 let login = {};
 let session;
 login.openSession = async (application, request, response) => {
@@ -37,7 +38,7 @@ login.openSession = async (application, request, response) => {
     try {
         responseFromPassVerify = await promisePassVerify;
         session = request.session;
-        session.email = request.body.email;
+        session._id = `pi${uniqueIdGenerator()}vii`;
         response.json(responseFromPassVerify);
     } catch (error) {
         throw Error(error);
@@ -47,7 +48,7 @@ login.openSession = async (application, request, response) => {
 };
 
 login.verifySession = (application, request, response) => {
-    console.log(request.session)
+    return request.session._id
 }
 
 

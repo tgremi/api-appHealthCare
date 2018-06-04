@@ -2,41 +2,26 @@ let MongoClient = require("mongodb").MongoClient;
 let models = {};
 const mongo = require("../../config/database");
 
-//users Collection
-models.insertUsers = (users, callbackFunction) => {
-    try {
-        let db = mongo.getDB();
-        db.collection("users", (error, collection) => {
-            if (!error) {
-                console.log("Collection users found.");
-                collection.insert(users, (error, success) => {
-                    if (error) {
-                        console.warn("Error on colletion users insert method =", error);
-                        if (typeof callbackFunction === "function")
-                            callbackFunction({ statusCode: 503, error: "Couldn't insert users on database.", reason: "", details: error }, undefined);
-                    }
-                    else {
-                        console.log("User inserted in users collection.");
-                        if (typeof callbackFunction === "function")
-                            callbackFunction(undefined, success.ops[0]._id);
-                    }
-                });
-            } else callbackFunction({ statusCode: 503, error: "Couldn't find users collection.", reason: "", details: error }, undefined);
-        });
-    } catch (error) {
-        console.warn("Error on insertUsers =", error);
-        if (typeof callbackFunction === "function")
-            callbackFunction("Error on insertUsers.", undefined);
-    }
-}
 
-models.updateUsers = (users, callbackFunction) => {
+//users Collection
+
+
+models.updateElderlyField = (user, callbackFunction) => {
     try {
+        console.log(user)
         let db = mongo.getDB();
         db.collection("users", (error, collection) => {
             if (!error) {
                 console.log("Collection users found.");
-                collection.replaceOne({ "_id": users._id }, users, (error, success) => {
+                collection.updateOne({ "email": user.email }, {
+                    $set: {
+                        'elderly.first_name': user.first_name,
+                        'elderly.last_name': user.last_name,
+                        'elderly.birth_day': user.birth_day,
+                        'elderly.height': user.heigth,
+                        'elderly.weight': user.weight,
+                    }
+                }, (error, success) => {
                     if (error) {
                         console.warn("Error on colletion users insert method =", error);
                         if (typeof callbackFunction === "function")
@@ -45,7 +30,37 @@ models.updateUsers = (users, callbackFunction) => {
                     else {
                         console.log("User updated in users collection.");
                         if (typeof callbackFunction === "function")
-                            callbackFunction(undefined, success.ops[0]._id);
+                            callbackFunction(undefined, success);
+                    }
+                });
+            } else callbackFunction({ statusCode: 503, error: "Couldn't find users collection.", reason: "", details: error }, undefined);
+        });
+    } catch (error) {
+        console.warn("Error on updateUsers =", error);
+        if (typeof callbackFunction === "function")
+            callbackFunction("Error on updateUsers.", undefined);
+    }
+}
+
+models.addContacts = (user, callbackFunction) => {
+    try {
+        console.log(user)
+        let db = mongo.getDB();
+        db.collection("users", (error, collection) => {
+            if (!error) {
+                console.log("Collection users found.");
+                collection.updateOne({ "email": user.email }, {
+                    $set: { 'contacts': user.contacts }
+                }, (error, success) => {
+                    if (error) {
+                        console.warn("Error on colletion users insert method =", error);
+                        if (typeof callbackFunction === "function")
+                            callbackFunction({ statusCode: 503, error: "Couldn't update users on database.", reason: "", details: error }, undefined);
+                    }
+                    else {
+                        console.log("User updated in users collection.");
+                        if (typeof callbackFunction === "function")
+                            callbackFunction(undefined, success);
                     }
                 });
             } else callbackFunction({ statusCode: 503, error: "Couldn't find users collection.", reason: "", details: error }, undefined);
@@ -76,7 +91,7 @@ models.getUsers = (email, callbackFunction) => {
                 callbackFunction({ statusCode: 503, error: "Couldn't find users collection.", reason: "", details: error }, undefined);
         });
     } catch (error) {
-        console.warn("Error on getUsers =", error);
+        console.warn(`Error on getUsers [${error}]`);
         if (typeof callbackFunction === "function")
             callbackFunction("Error on getUsers.", undefined);
     }
@@ -122,6 +137,242 @@ models.removeUsers = (options, callbackFunction) => {
         if (typeof callbackFunction === "function")
             callbackFunction("Error on removeUsers.", undefined);
     }
+}
+
+models.getSerieNumberDevice = (options, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection('devices', (error, collection) => {
+            if (!error) {
+                collection.findOne(options, (error, success) => {
+                    if (error) {
+                        console.warn('Error on collection devices find method = ', error);
+                        if (typeof callbackFunction === 'function') {
+                            callbackFunction({ statusCode: 404, error: `Couldn't find devices on database`, reason: '', details: error }, undefined);
+                        }
+                    }
+                    else if (typeof callbackFunction == 'function') {
+                        callbackFunction(undefined, success);
+                    }
+                });
+            }
+            else if (typeof callbackFunction == 'function') {
+                callbackFunction({ statusCode: 503, error: `Couldn't find devices on collection`, reason: '', details: error }, undefined);
+            }
+        })
+    } catch (error) {
+        console.warn('Error on getSerieNumberDevice [', error, ']')
+        if (typeof callbackFunction === 'function') {
+            callbackFunction('Error on getSerieNumberDevice', undefined);
+        }
+    }
+}
+
+models.insertUsers = (users, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection("users", (error, collection) => {
+            if (!error) {
+                console.log("Collection users found.");
+                collection.insert(users, (error, success) => {
+                    if (error) {
+                        console.warn("Error on colletion users insert method =", error);
+                        if (typeof callbackFunction === "function")
+                            callbackFunction({ statusCode: 503, error: "Couldn't insert users on database.", reason: "", details: error }, undefined);
+                    }
+                    else {
+                        console.log("User inserted in users collection.", success.ops[0]._id);
+                        if (typeof callbackFunction === "function") {
+                            let successObj = {
+                                code: 200,
+                                user: { _id: success.ops[0]._id, email: users.email }
+                            }
+                            callbackFunction(undefined, successObj);
+                        }
+                    }
+                });
+            } else callbackFunction({ statusCode: 503, error: "Couldn't find users collection.", reason: "", details: error }, undefined);
+        });
+    } catch (error) {
+        console.warn("Error on insertUsers =", error);
+        if (typeof callbackFunction === "function")
+            callbackFunction("Error on insertUsers.", undefined);
+    }
+}
+
+models.insertDevice = (options, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection('devices', (error, collection) => {
+            if (!error) {
+                collection.insert(options, (error, success) => {
+                    if (error) {
+                        console.warn(`Error on collection devices insert method [${error}]`);
+                        if (typeof callbackFunction == 'function') {
+                            callbackFunction({ statusCode: 503, error: `Couldn't insert devices on database.`, reason: '', details: error }, undefined);
+                        }
+                        else {
+                            console.log(`Device inserted on database.`);
+                            if (typeof callbackFunction == 'function') {
+                                callbackFunction(undefined, success.ops[0]._id);
+                            }
+                        }
+                    }
+                })
+            }
+        })
+    } catch (error) {
+        console.warn(`Error on insert device [${error}]`);
+        if (typeof callbackFunction == `function`) {
+            callbackFunction(`Error on insertDevice`, undefined);
+        }
+    }
+}
+
+
+models.registerDevices = (options, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection('devices', (error, collection) => {
+            if (!error) {
+                collection.updateOne({ '_id': options.hdw }, {
+                    $set: {
+                        'linked': true,
+                        'linked_to': options.user
+                    }
+                })
+            }
+        }, (error, success) => {
+            if (error) {
+                console.warn(`Couldn't update device on database  (RegisterDevice)\t error [${error}]`)
+                if (typeof callbackFunction == 'function') {
+                    callbackFunction({ statusCode: 503, error: "Couldn't update device on database.", reason: "", details: error }, undefined)
+                }
+            }
+            else {
+                console.log("Device updated in devices collection.");
+                if (typeof callbackFunction === "function")
+                    callbackFunction(undefined, success);
+            }
+        });
+
+        db.collection('users', (error, collection) => {
+            collection.update({ 'email': options.user }, {
+                $set: {
+                    'devices': options.hdw
+                }
+            }, (error, success) => {
+                if (error) {
+                    console.warn(`Couldn't update user on register device \t error[${error}]`);
+                    if (typeof callbackFunction == 'function')
+                        callbackFunction({ statusCode: 503, error: "Couldn't update user on register device", reason: "", details: error }, undefined)
+                } else {
+                    console.log("User updated in users collection. (RegisterDevice)");
+                    if (typeof callbackFunction === "function")
+                        callbackFunction(undefined, success);
+                }
+            })
+        })
+
+
+    } catch (error) {
+        console.warn(`Error on register Device [${error}]`);
+        if (typeof callbackFunction == 'function')
+            callbackFunction(`Error on register Device [${error}]`, undefined);
+    }
+}
+
+models.getDevices = (options, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection("devices", (error, collection) => {
+            if (!error) {
+                console.log("Collection devices found.");
+                collection.findOne({ "_id": options.hdw }, (error, users) => {
+                    if (error) {
+                        console.warn("Error on collection devices find() method = ", error);
+                        if (typeof callbackFunction === "function")
+                            callbackFunction({ statusCode: 404, error: "Couldn't find devices on database.", reason: "", details: error }, undefined);
+                    }
+                    else if (typeof callbackFunction === "function")
+                        callbackFunction(undefined, users);
+                });
+            } else if (typeof callbackFunction === "function")
+                callbackFunction({ statusCode: 503, error: "Couldn't find devices collection.", reason: "", details: error }, undefined);
+        });
+    } catch (error) {
+        console.warn(`Error on getUsers [${error}]`);
+        if (typeof callbackFunction === "function")
+            callbackFunction("Error on getUsers.", undefined);
+    }
+}
+
+
+models.insertData = (data, callbackFunction) => {
+    try {
+        let db = mongo.getDB();
+        db.collection("sensors_data", (error, collection) => {
+            if (!error) {
+                console.log("Collection sensors_data found.");
+                collection.insert(data, (error, success) => {
+                    if (error) {
+                        console.warn("Error on colletion sensors_data insert method =", error);
+                        if (typeof callbackFunction === "function")
+                            callbackFunction({ statusCode: 503, error: "Couldn't insert sensors_data on database.", reason: "", details: error }, undefined);
+                    }
+                    else {
+                        console.log("Data inserted in sensors_data collection.", success.ops[0]._id);
+                        if (typeof callbackFunction === "function") {
+                            let successObj = {
+                                code: 200,
+                                data: { _id: success.ops[0]._id }
+                            }
+                            callbackFunction(undefined, successObj);
+                        }
+                    }
+                });
+            } else callbackFunction({ statusCode: 503, error: "Couldn't find sensors_data collection.", reason: "", details: error }, undefined);
+        });
+    } catch (error) {
+        console.warn(`Error on insertData ${error}`);
+        if (typeof callbackFunction === "function")
+            callbackFunction("Error on insertData.", undefined);
+    }
+}
+
+
+models.sensorDataWatch = (data, callbackFunction) => {
+
+    try {
+        let db = mongo.getDB();
+        db.collection('sensors_data', (error, collection) => {
+            if (!error) {
+                console.log("Collection sensors_data found.");
+                collection.find({ 'hardware': data.hardware_number }, { sort: { created: -1 }, limit: 50 }).toArray((error, data) => {
+                    if (error) {
+                        console.warn("Error on colletion sensors_data insert method =", error);
+                        if (typeof callbackFunction === "function")
+                            callbackFunction({ statusCode: 503, error: "Couldn't insert sensors_data on database.", reason: "", details: error }, undefined);
+                    }
+                    else {
+                        console.log("Data inserted in sensors_data collection.", data);
+                        if (typeof callbackFunction === "function") {
+                            let successObj = {
+                                code: 200,
+                                data: data
+                            }
+                            callbackFunction(undefined, successObj);
+                        }
+                    }
+                });
+            } else callbackFunction({ statusCode: 503, error: "Couldn't find sensors_data collection.", reason: "", details: error }, undefined);
+        });
+    } catch (error) {
+        console.warn(`Error on insertData ${error}`);
+        if (typeof callbackFunction === "function")
+            callbackFunction("Error on insertData.", undefined);
+    }
+
 }
 
 module.exports = models;
