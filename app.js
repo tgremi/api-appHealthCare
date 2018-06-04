@@ -6,7 +6,7 @@ let server_port = process.env.YOUR_PORT || process.env.PORT || 4000;
 let server_host = process.env.YOUR_HOST || '0.0.0.0';
 
 try {
-    app.listen(server_port, '192.168.0.15', () => {
+    app.listen(server_port, server_host, () => {
     }).on("error", (error) => {
         console.log("api-pivii server error =", error);
     }).on("listening", () => {
