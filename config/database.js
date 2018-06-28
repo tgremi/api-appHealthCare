@@ -10,7 +10,7 @@ mongo.connect = async () => {
     let promise;
     try {
         promise = new Promise((resolve, reject) => {
-            MongoClient.connect('mongodb://pivii:qZwX1001@ds147890.mlab.com:47890/pivii', (error, database) => {
+            MongoClient.connect('mongodb://localhost/pivii', (error, database) => {
                 if (error) {
                     console.warn("Error connecting to Database =", error);
                     setRetryTimer();

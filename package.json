@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "env TZ='America/Sao_Paulo' node app.js"
   },
   "author": "Thalles W. Gremi",
   "license": "ISC",
@@ -17,9 +17,14 @@
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "express-validator": "^5.2.0",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.17",
     "mongodb": "^3.0.10",
     "plivo": "^4.0.0",
+    "request": "^2.87.0",
+    "set-timezone-time": "^0.11.4",
     "socket-io": "^1.0.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "time": "^0.12.0"
   }
 }

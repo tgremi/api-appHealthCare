@@ -5,7 +5,7 @@ let expressValidator = require('express-validator');
 let session = require('express-session');
 let uniqueIdGenerator = require('../app/utils/helpers').uniqueIdGenerator;
 const database = require('./database.js');
-
+let momentTz = require('moment-timezone'); 
 
 console.log(`pi${uniqueIdGenerator()}vii`)
 database.connect().catch((error) => {
@@ -19,9 +19,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: `pivii`,
-    
-    
+
+
 }))
+
+app.set(momentTz.tz("America/Sao_Paulo"));
 app.use(expressValidator());
 
 app.use(express.static('./app/public'));

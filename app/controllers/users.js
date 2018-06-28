@@ -15,7 +15,7 @@ users.createUser = async (application, req, res) => {
             _id: application.app.utils.helpers.uniqueIdGenerator(),
             first_name: req.body.first_name,
             last_name: req.body.last_name,
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
             age: req.body.age,
             password: hashPass,
             country: req.body.country,
@@ -122,7 +122,7 @@ users.addContacts = async (application, req, res) => {
 users.getUser = async (application, req, res) => {
     console.log('chegou nop GET')
     let promise = new Promise((resolve, reject) => {
-        application.app.models.database.getUsers(req.params.email, (error, user) => {
+        application.app.models.database.getUsers(req.params.email.toLowerCase(), (error, user) => {
             if (error) reject(error);
             else {
                 console.log(user);
